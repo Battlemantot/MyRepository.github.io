@@ -1,0 +1,109 @@
+/* Top navigation bar */
+.topnav {
+	background-color: rgb(133, 185, 126);
+	overflow: hidden;
+}
+
+/* Style the links inside the navigation bar */
+.topnav a {
+	float: left;
+	color: black;
+	text-align: center;
+	padding: 14px 16px;
+	text-decoration: none;
+	font-size: 18px;
+}
+
+/* Change the color of links on hover */
+.topnav a:hover {
+	background-color: white;
+	color: black;
+}
+
+/* Add a color to the active/current link */
+.topnav a.active {
+	background-color: #04aa6d;
+	color: white;
+}
+
+/* Table CSS */
+td {
+	border: 2px solid white;
+	text-align: left;
+	padding: 10px;
+}
+th {
+	border: 2px solid white;
+	text-align: left;
+	padding: 10px;
+	color: greenyellow;
+}
+
+/* Interactive map */
+#map {
+	height: 800px;
+	width: 100%;
+}
+
+/* Make all text colorful */
+h1 {
+	text-align: center;
+	border: 5px solid white;
+	padding: 15px;
+}
+
+a {
+	color: greenyellow;
+}
+
+body,
+html {
+	background-color: #1d2021;
+	height: 100%;
+	color: white;
+}
+
+/* The hero image */
+.hero-image {
+	background-image: url('./Images/banner.jpg');
+
+	/* Set a specific height */
+	height: 60%;
+
+	/* Position and center the image to scale nicely on all screens */
+	background-position: center;
+	background-repeat: no-repeat;
+	background-size: cover;
+	position: relative;
+}
+
+/* Place text in the middle of the image */
+.hero-text {
+	text-align: center;
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+}
+
+/* Gallery CSS */
+div.gallery {
+	margin: 5px;
+	border: 2px solid white;
+	float: left;
+	width: 300px;
+}
+
+div.gallery:hover {
+	border: 2px solid greenyellow;
+}
+
+div.gallery img {
+	width: 100%;
+	height: auto;
+}
+
+div.desc {
+	padding: 15px;
+	text-align: center;
+}
