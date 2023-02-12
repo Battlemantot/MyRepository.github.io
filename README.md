@@ -1,3 +1,3 @@
 # Battlemantot.github.io
 
-My Projects
+My projects
