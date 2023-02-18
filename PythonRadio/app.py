@@ -1,33 +1,54 @@
-import tkinter as tk
-from tkinter import filedialog, Text
-import os
-
-root = tk.Tk()
-saveFile = "PythonRadio/save.txt"
-os.makedirs(os.path.dirname(saveFile), exist_ok=True)
-radio_source = "https://opml.radiotime.com"
-# http://stream.radioparadise.com/rock-128
+import customtkinter
+from pyradios import RadioBrowser
+import vlc
+import time
 
 
-# Load save file
-#if os.path.isfile('save.txt'):
-#   with open('save.txt', 'r') as f:
-#       tempApps = f.read()
-#        print(tempApps)
+customtkinter.set_appearance_mode("dark")
+customtkinter.set_default_color_theme("dark-blue")
 
-def StartRadio():
-    print("huh")
+root = customtkinter.CTk()
+root.geometry("500x350")
 
-canvas = tk.Canvas(root, height=680, width=680, bg="#263D42")
-canvas.pack()
+rb = RadioBrowser()
 
-frame = tk.Frame(root, bg="white")
-frame.place(relwidth=0.8, relheight=0.8, relx=0.1, rely=0.1)
+def searchForStation(stationName):
+    info = rb.search(name=stationName, name_exact=False)
+    radio_name = info[0] # Number corresponds with country
 
-sRadioButton = tk.Button(root, text="Start radio", padx=10, pady=5, fg="white", bg="#263D42", command=StartRadio)
-sRadioButton.pack()
+    radioNameLabel = customtkinter.CTkLabel(master=frame, text="Staion name: " + radio_name["name"])
+    radioNameLabel.pack(pady=12, padx=10)
 
+    radioCountryLabel = customtkinter.CTkLabel(master=frame, text="Country of origin: " + radio_name["country"], wraplength=290)
+    radioCountryLabel.pack(pady=12, padx=10)
+
+    url = radio_name['url']
+
+    #define VLC instance
+    instance = vlc.Instance('--input-repeat=-1', '--fullscreen')
+
+    #Define VLC player
+    player=instance.media_player_new()
+
+    #Define VLC media
+    media=instance.media_new(url)
+
+    #Set player media
+    player.set_media(media)
+
+    #Play the media
+    player.play()
+    
+frame = customtkinter.CTkFrame(master=root)
+frame.pack(pady=20, padx=60, fill="both", expand = True)
+
+label = customtkinter.CTkLabel(master=frame, text="Enter the name of a radio station")
+label.pack(pady=12, padx=10)
+
+stationNameInput = customtkinter.CTkEntry(master=frame, placeholder_text=" ")
+stationNameInput.pack(pady = 12, padx = 10)
+
+button = customtkinter.CTkButton(master=frame, text="Search", command=lambda: searchForStation(stationNameInput.get()))
+button.pack(pady = 12, padx = 10)
 
 root.mainloop()
-
-# Save a file
