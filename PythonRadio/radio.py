@@ -1,9 +1,15 @@
 import customtkinter as ctk
 from pyradios import RadioBrowser
 import os
-from PIL import Image
+from PIL import Image, ImageTk
 import requests
 import vlc
+from urllib.request import urlopen
+
+import re
+import struct
+import sys
+import urllib.request as urllib2
 
 rb = RadioBrowser()
 
@@ -76,19 +82,32 @@ class App(ctk.CTk):
         self.home_searchButton = ctk.CTkButton(
             self.home_frame, text="Search", compound="right", command=lambda: self.searchForStation(self.home_radioName_input.get()))
         self.home_searchButton.grid(row=0, column=2, padx=0, pady=20)
-
+        
         self.home_stationImage = ctk.CTkLabel(
-            self.home_frame, text="Mountain Radio", image=nav_image)
+            self.home_frame, text="Radio image here", image=None)
         self.home_stationImage.grid(row=1, column=2, padx=20, pady=10)
 
         self.home_stationName = ctk.CTkLabel(
-            self.home_frame, text="Station Name here", image="", compound="right")
-        self.home_stationName.grid(row=2, column=2, padx=20, pady=10)
+            self.home_frame, text="Station name: ", compound="left")
+        self.home_stationName.grid(row=2, column=1, padx=20, pady=10, sticky='w')
+
+        self.home_stationSong = ctk.CTkLabel(
+            self.home_frame, text="Current song: ", compound="right")
+        self.home_stationSong.grid(row=3, column=1, padx=20, pady=10, sticky='w')
+
+        self.home_stationCountry = ctk.CTkLabel(
+            self.home_frame, text="Country: ", compound="right")
+        self.home_stationCountry.grid(row=4, column=1, padx=20, pady=10, sticky='w')
 
         self.home_startButton = ctk.CTkButton(
             self.home_frame, text="Start", compound="top", command=lambda: player.play())
         self.home_startButton.grid(
             row=6, column=1, padx=0, pady=10, sticky="s")
+        
+        self.home_favButton = ctk.CTkButton(
+            self.home_frame, text="Favourite", compound="top", command=lambda: "")
+        self.home_favButton.grid(
+            row=6, column=2, padx=0, pady=10, sticky="s")
 
         self.home_stopButton = ctk.CTkButton(
             self.home_frame, text="Stop", compound="top", command=lambda: player.stop())
@@ -150,9 +169,8 @@ class App(ctk.CTk):
     def searchForStation(self, stationName):
         # Get the radio station
         info = rb.search(name=stationName, name_exact=False)
-        radio_name = info[0]  # Number corresponds with country
-        url = radio_name['url']
-        radio_image = radio_name['favicon']
+        radio_station = info[0]  # Number corresponds with country
+        url = radio_station['url']
 
         # Prepare to play radio through VLC
         # define VLC instance
@@ -161,6 +179,7 @@ class App(ctk.CTk):
         # Define VLC player
         global player
         player = instance.media_player_new()
+        
         # Define VLC media
         global media
         media = instance.media_new(url)
@@ -168,11 +187,42 @@ class App(ctk.CTk):
         player.set_media(media)
         player.audio_set_volume(50)
 
-        # Display radio station
+        # Display radio station information
         self.home_stationName.configure(
-            text="Staion name: " + radio_name["name"])
-        # self.home_stationImage.configure(light_image=Image.open(
-        # requests.get(radio_image, stream=True).raw))
+            text="Staion name: " + radio_station["name"])
+        self.home_stationCountry.configure(
+            text="Country: " + radio_station["country"])
+        
+        # ALL OF THIS, for the song name
+        encoding = 'latin1' # default: iso-8859-1 for mp3 and utf-8 for ogg streams
+        request = urllib2.Request(url, headers={'Icy-MetaData': 1})  # request metadata
+        response = urllib2.urlopen(request)
+        print(response.headers, file=sys.stderr)
+        metaint = int(response.headers['icy-metaint'])
+        
+        for _ in range(10): # # title may be empty initially, try several times
+            response.read(metaint)  # skip to metadata
+            metadata_length = struct.unpack('B', response.read(1))[0] * 16  # length byte
+            metadata = response.read(metadata_length).rstrip(b'\0')
+            print(metadata, file=sys.stderr)
+            # extract title from the metadata
+            m = re.search(br"StreamTitle='([^']*)';", metadata)
+            if m:
+                title = m.group(1)
+                if title:
+                    break
+        self.home_stationSong.configure(text="Current song: " + title.decode(encoding, errors='replace'))
+        
+        # Set the radio station image
+        #URL = radio_station["favicon"]
+        #print("URL: " + radio_station["favicon"])
+        #u = urlopen(URL)
+        #raw_data = u.read()
+        #u.close()
+
+        #radio_station_image = ImageTk.PhotoImage(data=raw_data)
+        #self.home_stationImage.image = radio_station_image
+        #self.home_stationImage.configure(image=Image.open(requests.get(radio_image, stream=True).raw))
 
         # radioCountryLabel = customtkinter.CTkLabel(
         # master=frame, text="Country of origin: " + radio_name["country"], wraplength=290)
