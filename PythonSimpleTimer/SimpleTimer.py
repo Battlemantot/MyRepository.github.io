@@ -1,57 +1,41 @@
-import PySimpleGUI as sg
+import customtkinter
 import time
+import datetime
+import threading
 
-# ----------------  Create Form  ----------------
-sg.theme('Black')
-sg.set_options(element_padding=(5, 5))
+customtkinter.set_default_color_theme("dark-blue")
+customtkinter.set_appearance_mode("dark")
 
-def main_win():
-    layout = [
-        [sg.Button('Set Time', key='win_set_time')],
-        [sg.Text("00:00:00",size=(12, 2), font=('Helvetica', 20), justification='center', key='timer_text')],
-        [sg.Button('Start', button_color=('white', '#001480'), key='start_countdown'), sg.Button('Stop', button_color=('white', '#007339'), key='stop_countdown'), sg.Exit(button_color=('white', 'firebrick4'), key='Exit')]
-    ]
-    return sg.Window('Simple Timer', layout, location=(800,600), finalize=True, scaling=1.5)
+class App(customtkinter.CTk):
+    def __init__(self):
+        super().__init__()
 
-def time_set_win():
-    layout = [
-        [sg.In(key='set_time_hours', size=10, default_text=0), 
-        sg.In(key='set_time_minutes', size=10, default_text=0), 
-        sg.In(key='set_time_seconds', size=10, default_text=0)],
-        [sg.Button('Set time', key='timer_set_time')]
-    ]
-    return sg.Window('Set time', layout, finalize=True, modal=True)
+        self.title("Simple Timer")
+        #self.geometry("320x320")
 
-window1, window2 = main_win(), None  
+        self.entry_Hours = customtkinter.CTkEntry(self, placeholder_text="Hours")
+        self.entry_Hours.grid(row=0, column=0, padx=20, pady=20)
+        self.entry_Minutes = customtkinter.CTkEntry(self, placeholder_text="Minutes")
+        self.entry_Minutes.grid(row=0, column=1, padx=20, pady=20)
+        self.entry_Seconds = customtkinter.CTkEntry(self, placeholder_text="Seconds")
+        self.entry_Seconds.grid(row=0, column=2, padx=20, pady=20)
 
-# Main loop
-while True:             # Event Loop
-    window, event, values = sg.read_all_windows()
-    if event == sg.WIN_CLOSED or event == 'Exit':
-        window.close()
-        if window == window2:       # if closing win 2, mark as closed
-            window2 = None
-        elif window == window1:     # if closing win 1, exit program
-            break
-    elif event == 'win_set_time' and not window2:
-        window2 = time_set_win()
-    elif event == 'timer_set_time':
-        try:
-            time_hours = int(values['set_time_hours'])
-            time_minutes = int(values['set_time_minutes'])
-            time_seconds = int(values['set_time_seconds'])
-        except:
-            sg.popup("Please enter numbers only")
-            continue
+        self.label_Time = customtkinter.CTkLabel(self, text="Time remaining:", fg_color="transparent")
+        self.label_Time.grid(row=1, column=0, padx=20, pady=20)
+
+        # Need to fix threading so program doesn't freeze
+        self.button = customtkinter.CTkButton(self, text="Start Timer", command=lambda : threading.Thread(target= self.countdown(int(self.entry_Hours.get()), int(self.entry_Minutes.get()), int(self.entry_Seconds.get()))).start())
+        self.button.grid(row=2, column=0, padx=20, pady=20)
         
-        if (time_hours < 0 or time_hours > 23 or time_minutes < 0 or time_minutes > 59 or time_seconds < 0 or time_seconds > 59):
-            sg.Popup('Please enter valid numbers')
-            continue
+    def countdown(self, h, m, s):
+        total_seconds = h * 3600 + m * 60 + s
 
-        window1['timer_text'].update('{:02d}:{:02d}:{:02d}'.format(time_hours, time_minutes, time_seconds))
-        window2.close()
-        window2 = None
-    elif event == 'start_countdown':
-        window1['timer_text'].update('{:02d}:{:02d}:{:02d}'.format(time_hours - 1, time_minutes - 1, time_seconds - 1))
-    
-window.close()
+        while total_seconds > 0:
+            timer = datetime.timedelta(seconds = total_seconds)
+            print(timer, end="\r")
+            time.sleep(1)
+            total_seconds -= 1
+        print("Timer end!")
+
+app = App()
+app.mainloop()
