@@ -1,3 +1,3 @@
-# Battlemantot.github.io
+# MyRepository.github.io
 
 My projects
