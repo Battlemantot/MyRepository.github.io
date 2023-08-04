@@ -21,21 +21,34 @@ class App(customtkinter.CTk):
         self.entry_Seconds.grid(row=0, column=2, padx=20, pady=20)
 
         self.label_Time = customtkinter.CTkLabel(self, text="Time remaining:", fg_color="transparent")
-        self.label_Time.grid(row=1, column=0, padx=20, pady=20)
+        self.label_Time.grid(row=1, column=1, padx=20, pady=20)
 
-        # Need to fix threading so program doesn't freeze
-        self.button = customtkinter.CTkButton(self, text="Start Timer", command=lambda : threading.Thread(target= self.countdown(int(self.entry_Hours.get()), int(self.entry_Minutes.get()), int(self.entry_Seconds.get()))).start())
-        self.button.grid(row=2, column=0, padx=20, pady=20)
+        self.button_start = customtkinter.CTkButton(self, text="Start Timer", command=lambda : threading.Thread(target= self.countdown, args=(int(self.entry_Hours.get()), int(self.entry_Minutes.get()), int(self.entry_Seconds.get()))).start())
+        self.button_start.grid(row=2, column=0, padx=20, pady=20)
+
+        self.button_stop = customtkinter.CTkButton(self, text="Stop Timer", command=lambda : self.stop_countdown())
+        self.button_stop.grid(row=2, column=1, padx=20, pady=20)
+
+        self.button_reset = customtkinter.CTkButton(self, text="Reset Timer", command=lambda : self.reset_countdown())
+        self.button_reset.grid(row=2, column=2, padx=20, pady=20)
         
     def countdown(self, h, m, s):
         total_seconds = h * 3600 + m * 60 + s
 
         while total_seconds > 0:
             timer = datetime.timedelta(seconds = total_seconds)
-            print(timer, end="\r")
+            self.label_Time.configure(text = "Time remaining: " + str(timer))
             time.sleep(1)
             total_seconds -= 1
-        print("Timer end!")
+        self.label_Time.configure(text = "Time remaining: Timer done!")
+    
+    # Implement a time-stop function
+    def stop_countdown(self):
+        pass
+    
+    # Implement a timer reset function
+    def reset_countdown(self):
+        pass
 
 app = App()
 app.mainloop()
