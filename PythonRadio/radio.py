@@ -96,7 +96,7 @@ class App(ctk.CTk):
         self.home_stationSong.grid(row=3, column=1, padx=20, pady=10, sticky='w')
 
         self.home_stationCountry = ctk.CTkLabel(
-            self.home_frame, text="Country: ", compound="right")
+            self.home_frame, text="Country: ", compound="right", wraplength=200)
         self.home_stationCountry.grid(row=4, column=1, padx=20, pady=10, sticky='w')
 
         self.home_startButton = ctk.CTkButton(
